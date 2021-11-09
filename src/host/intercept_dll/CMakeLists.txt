@@ -29,7 +29,7 @@ if((CMAKE_CXX_COMPILER_ID MATCHES "Clang") OR (CMAKE_CXX_COMPILER_ID MATCHES "GN
 		${INTERCEPT_EXTENSION_NAME} PRIVATE 
 		"-std=c++1z"
 		"$<$<CONFIG:Release>:-O3>"
-		"-g3" # "-s" #remove -s to enable debug symbols. Also maybe add -g or -g3
+		"$<$<CONFIG:Release>:-s>"
 		"-fPIC"
 		"-fpermissive"
 		"-pthread"
