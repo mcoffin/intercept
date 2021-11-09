@@ -1456,6 +1456,22 @@ namespace intercept {
                 return _scriptNulars;
             }
 
+            static inline size_t get_types_offset() {
+                return offsetof(game_state, _scriptTypes);
+            }
+
+            static inline size_t get_functions_offset() {
+                return offsetof(game_state, _scriptFunctions);
+            }
+
+            static inline size_t get_operators_offset() {
+                return offsetof(game_state, _scriptOperators);
+            }
+
+            static inline size_t get_nulars_offset() {
+                return offsetof(game_state, _scriptNulars);
+            }
+
 
 
 
