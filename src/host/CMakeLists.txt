@@ -2,8 +2,7 @@ cmake_minimum_required (VERSION 3.8)
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON) 
 
-add_definitions(/DINTERCEPT_HOST_DLL=1)
-add_definitions(/DNOMINMAX)
+add_compile_definitions(INTERCEPT_HOST_DLL=1 NOMINMAX)
 
 if (NOT CMAKE_BUILD_TYPE AND CMAKE_COMPILER_IS_GNUCXX)
     message(STATUS "No build type selected, default to Debug")
@@ -20,9 +19,10 @@ include_directories("invoker")
 include_directories("extensions")
 include_directories("../client/headers")
 include_directories("intercept_dll")
+include_directories(SYSTEM "${PROJECT_SOURCE_DIR}/src/host/common/system")
 
 if(DEVEL)
-    add_definitions(-DDEVEL)
+    add_compile_definitions(DEVEL)
 endif()
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR}/common)

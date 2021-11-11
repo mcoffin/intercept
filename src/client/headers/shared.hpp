@@ -20,6 +20,10 @@
 #include <variant>
 #include <optional>
 
+#ifndef INTERCEPT_CLIENT_SHARED
+#define INTERCEPT_CLIENT_SHARED
+#endif
+
 #ifdef _DEBUG
 #define ZERO_OUTPUT()    { memset(output, 0x00, outputSize); }
 #define EXTENSION_RETURN() {output[outputSize-1] = 0x00; } return;

@@ -13,6 +13,10 @@
 #include <streambuf>
 #include "logging.hpp"
 
+#ifndef INTERCEPT_HOST_SHARED
+#define INTERCEPT_HOST_SHARED
+#endif
+
 #ifdef _DEBUG
 #define ZERO_OUTPUT()    { memset(output, 0x00, outputSize); }
 #define EXTENSION_RETURN() {output[outputSize-1] = 0x00; } return;
