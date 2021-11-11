@@ -1,8 +1,6 @@
 #include <stddef.h>
 #pragma once
-#if defined(_WIN32)
-#include <winbase.h>
-#elif defined (_WIN64)
+#if defined(_WIN32) || defined(_WIN64)
 #include <winbase.h>
 #else
 #define __CUSTOM_ISBADREADPTR

@@ -26,99 +26,64 @@ namespace intercept {
         count_t count;
         count_t capacity;
 
-        bool is_valid() {
+        inline bool is_valid() {
             if (IsBadReadPtr(ptr, sizeof(void *))) return false;
             return capacity >= count;
         }
-    };
 
-    template<typename count_t>
-    struct gamestate_size_check {
-        void *p1;//typearray
-        count_t typeCount{ 0 };
-        count_t typeCapacity{ 0 };
-        void *p2;//functions
-        count_t f_tableCount{ 0 };
-        count_t f_count{ 0 };
-        void *p3;//operators
-        count_t o_tableCount{ 0 };
-        count_t o_count{ 0 };
-        void *p4;//nulars
-        count_t n_tableCount{ 0 };
-        count_t n_count{ 0 };
-
-        bool pointers_valid() {
-            auto runner = reinterpret_cast<struct gamestate_array<count_t> *>(&p1);
-            if (!runner->is_valid()) return false;
-            runner = reinterpret_cast<struct gamestate_array<count_t> *>(&p2);
-            if (!runner->is_valid()) return false;
-            runner = reinterpret_cast<struct gamestate_array<count_t> *>(&p3);
-            if (!runner->is_valid()) return false;
-            runner = reinterpret_cast<struct gamestate_array<count_t> *>(&p4);
-            if (!runner->is_valid()) return false;
-            return true;
+        inline void dump(char prefix) {
+            fprintf(stderr, "\t%c_ptr: %p\n\t%c_count: %d\n\t%c_capacity: %d\n", prefix, ptr, prefix, count, prefix, capacity);
         }
     };
 
-    struct size_check {
-        uintptr_t p1;//typearray
-        uintptr_t typeCount;
-        uintptr_t typeCapacity;
-        uintptr_t p2;//functions
-        int f_tableCount{ 0 };
-        int f_count{ 0 };
-        uintptr_t p3;//operators
-        int o_tableCount{ 0 };
-        int o_count{ 0 };
-        uintptr_t p4;//nulars
-        int n_tableCount{ 0 };
-        int n_count{ 0 };
+    typedef struct gamestate_array<int> gamestate_array_t;
 
-        bool pointers_valid() {
-            size_t ptr_size = sizeof(void *);
-            if (IsBadReadPtr(reinterpret_cast<void*>(p1), ptr_size)) return false;
-            if (IsBadReadPtr(reinterpret_cast<void*>(p2), ptr_size)) return false;
-            if (IsBadReadPtr(reinterpret_cast<void*>(p3), ptr_size)) return false;
-            if (IsBadReadPtr(reinterpret_cast<void*>(p4), ptr_size)) return false;
+    template<typename T>
+    void dump_offsets(std::string_view prefix) {
+	auto dump_offset = [prefix](const char *name, size_t our_offset, size_t their_offset) -> void {
+	    std::cerr << prefix << "our " << name << " offset: " << our_offset << std::endl
+		<< prefix << "their " << name << " offset: " << their_offset << std::endl;
+	};
+	dump_offset("types", offsetof(T, types.ptr), game_state::get_types_offset());
+	dump_offset("functions", offsetof(T, functions.ptr), game_state::get_functions_offset());
+	dump_offset("operators", offsetof(T, operators.ptr), game_state::get_operators_offset());
+	dump_offset("nulars", offsetof(T, nulars.ptr), game_state::get_nulars_offset());
+    }
+
+    struct gamestate_partial {
+#if defined(_WIN32) || defined(_WIN64)
+        struct gamestate_array<uintptr_t> types;
+#else
+        struct gamestate_array<int> types;
+#endif
+        gamestate_array_t functions;
+        gamestate_array_t operators;
+        gamestate_array_t nulars;
+
+        bool is_valid() {
+            if (types.count != types.capacity) return false;
+            if (!types.is_valid()) return false;
+            if (!functions.is_valid()) return false;
+            if (!operators.is_valid()) return false;
+            if (!nulars.is_valid()) return false;
             return true;
+        }
+
+        void dump() {
+            std::cerr << '\t' << "size: " << sizeof(struct gamestate_partial) << " (game_state: " << sizeof(game_state) << ')' << std::endl;
+            types.dump('t');
+            functions.dump('f');
+            operators.dump('o');
+            nulars.dump('n');
+            dump_offsets<struct gamestate_partial>("\t\t");
         }
     };
 
-    void dump_gamestate_arr(char prefix, void *ptr, int tableCount, int count) {
-        fprintf(stderr, "\t%c_ptr: %p\n\t%c_tableCount: %d\n\t%c_count: %d\n", prefix, ptr, prefix, tableCount, prefix, count);
-    }
+    typedef struct gamestate_partial gamestate_partial_t;
 
-    template<typename T>
-    void dump_gamestate_offsets(const char *prefix) {
-        auto dump_offset = [prefix](const char *name, size_t our_offset, size_t their_offset) -> bool {
-            std::cerr << prefix << "our " << name << " offset: " << our_offset << std::endl
-                << prefix << "their " << name << " offset: " << their_offset << std::endl;
-        };
-        dump_offset("types", offsetof(T, p1), game_state::get_types_offset());
-        dump_offset("functions", offsetof(T, p2), game_state::get_functions_offset());
-        dump_offset("operators", offsetof(T, p3), game_state::get_operators_offset());
-        dump_offset("nulars", offsetof(T, p4), game_state::get_nulars_offset());
-    }
-
-    template<typename T>
-    void dump_gamestate(T *p) {
-        std::cerr << '\t' << "size: " << sizeof(T) << " (game_state: " << sizeof(game_state) << ')' << std::endl;
-        fprintf(stderr, "\tt_ptr: %p\n", p->p1);
-        std::cerr << '\t' << "typeCount: " << p->typeCount << std::endl
-            << '\t' << "typeCapacity: " << p->typeCapacity << std::endl;
-        dump_gamestate_arr('f', reinterpret_cast<void *>(p->p2), p->f_tableCount, p->f_count);
-        dump_gamestate_arr('o', reinterpret_cast<void *>(p->p3), p->o_tableCount, p->o_count);
-        dump_gamestate_arr('n', reinterpret_cast<void *>(p->p4), p->n_tableCount, p->n_count);
-        dump_gamestate_offsets<T>("\t\t");
-    }
-
-    template<typename T>
-    bool is_valid_gamestate(T *p) {
-        size_t ptr_size = sizeof(void *);
-        if (p == nullptr || IsBadReadPtrTyped<T>(p)) return false;
-        if (p->typeCount != p->typeCapacity) return false;
-        if (!p->pointers_valid()) return false;
-        return true;
+    bool is_valid_gamestate(gamestate_partial_t *p) {
+        if (p == nullptr || IsBadReadPtrTyped(p)) return false;
+        return p->is_valid();
     }
 
     loader::loader() : _attached(false), _patched(false) {}
@@ -566,20 +531,12 @@ namespace intercept {
 // #endif
 
     uintptr_t loader::find_game_state(uintptr_t stack_base) {
+        dump_offsets<gamestate_partial_t>("");
         auto checkValid = [](uintptr_t base) -> bool {
-            if (is_valid_gamestate(reinterpret_cast<struct size_check *>(base))) {
-                std::cerr << "intercept_dll::loader: found as valid size_check" << std::endl;
-                dump_gamestate(reinterpret_cast<struct size_check *>(base));
-                return true;
-            }
-            if (is_valid_gamestate(reinterpret_cast<struct gamestate_size_check<int> *>(base))) {
-                std::cerr << "intercept_dll::loader: found as valid struct gamestate_size_check<int>" << std::endl;
-                dump_gamestate(reinterpret_cast<struct gamestate_size_check<int> *>(base));
-                return true;
-            }
-            if (is_valid_gamestate(reinterpret_cast<struct gamestate_size_check<uintptr_t> *>(base))) {
-                std::cerr << "intercept_dll::loader: found as valid struct gamestate_size_check<uintptr_t>" << std::endl;
-                dump_gamestate(reinterpret_cast<struct gamestate_size_check<uintptr_t> *>(base));
+            auto gs = reinterpret_cast<gamestate_partial_t *>(base);
+            if (is_valid_gamestate(gs)) {
+                std::cerr << "intercept_dll::loader: found valid gamestate" << std::endl;
+                gs->dump();
                 return true;
             }
             return false;
