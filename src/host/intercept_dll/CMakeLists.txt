@@ -27,7 +27,6 @@ set_target_properties(${INTERCEPT_EXTENSION_NAME} PROPERTIES FOLDER intercept)
 if((CMAKE_CXX_COMPILER_ID MATCHES "Clang") OR (CMAKE_CXX_COMPILER_ID MATCHES "GNU"))
 	target_compile_options(
 		${INTERCEPT_EXTENSION_NAME} PRIVATE 
-		"-std=c++1z"
 		"$<$<CONFIG:Release>:-O3>"
 		"$<$<CONFIG:Release>:-s>"
 		"-fPIC"

@@ -13,7 +13,7 @@ option(USE_STATIC_LINKING "USE_STATIC_LINKING" ON)
 
 if((CMAKE_CXX_COMPILER_ID MATCHES "Clang") OR (CMAKE_CXX_COMPILER_ID MATCHES "GNU"))
     # SET(CMAKE_CXX_FLAGS "-std=c++1z -O2 -s -fPIC -fpermissive")
-    add_compile_options("-std=c++1z" "-fPIC" "-fpermissive")
+    add_compile_options("-fPIC" "-fpermissive")
     set(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
     set(CMAKE_SHARED_LINKER_FLAGS "-static-libgcc -static-libstdc++")
 else()

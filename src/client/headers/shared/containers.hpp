@@ -207,13 +207,13 @@ namespace intercept::types {
         constexpr refcount_base(const refcount_base&) noexcept : _refcount(0) {}
         constexpr void operator=(const refcount_base&) const noexcept {}
 
-        constexpr int add_ref() const noexcept {
+        int add_ref() const noexcept {
             return ++_refcount;
         }
-        constexpr int dec_ref() const noexcept {
+        int dec_ref() const noexcept {
             return --_refcount;
         }
-        constexpr int ref_count() const noexcept {
+        int ref_count() const noexcept {
             return _refcount;
         }
         mutable int _refcount;
