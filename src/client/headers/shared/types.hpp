@@ -1399,7 +1399,11 @@ namespace intercept {
                 eval->_errorType = type;
                 eval->_errorMessage = message;
                 if (current_context)
+#ifdef NO_SOURCE_POSITION
+                    eval->_errorPosition = {};
+#else
                     eval->_errorPosition = current_context->sdocpos;
+#endif
             }
 
             /**

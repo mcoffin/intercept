@@ -1,7 +1,7 @@
 #include <stddef.h>
 #pragma once
 #if defined(_WIN32) || defined(_WIN64)
-#include <winbase.h>
+#include <windows.h>
 #else
 #define __CUSTOM_ISBADREADPTR
 #ifdef __cplusplus
