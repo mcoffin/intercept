@@ -5,12 +5,12 @@
 
 #pragma once
 
-#include "../common.h"
+#include <spdlog/common.h>
 
 #ifdef SPDLOG_ENABLE_SYSLOG
 
-#include "sink.h"
-#include "../details/log_msg.h"
+#include <spdlog/sinks/sink.h>
+#include <spdlog/details/log_msg.h>
 
 #include <array>
 #include <string>

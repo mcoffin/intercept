@@ -5,8 +5,8 @@
 
 #pragma once
 
-#include "../details/null_mutex.h"
-#include "base_sink.h"
+#include <spdlog/details/null_mutex.h>
+#include <spdlog/sinks/base_sink.h>
 
 #include <ostream>
 #include <mutex>
@@ -32,7 +32,7 @@ protected:
             _ostream.flush();
     }
 
-    void _flush() override
+    void flush() override
     {
         _ostream.flush();
     }

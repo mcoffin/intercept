@@ -11,7 +11,6 @@ endif()
 
 option(DEVEL "DEVEL" ON)
 option(USE_STATIC_LINKING "USE_STATIC_LINKING" ON)
-option(USE_SYSTEM_SPDLOG "USE_SYSTEM_SPDLOG" OFF)
 
 include_directories("common")
 include_directories("controller")
@@ -24,11 +23,6 @@ include_directories("intercept_dll")
 if(DEVEL)
     add_compile_definitions(DEVEL)
 endif()
-if(USE_SYSTEM_SPDLOG)
-    add_compile_definitions(INTERCEPT_SYSTEM_SPDLOG)
-else()
-    include_directories(${CMAKE_CURRENT_SOURCE_DIR}/common/system)
-endif()
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR}/common)
 include_directories(${CMAKE_CURRENT_BINARY_DIR}/controller)
@@ -36,6 +30,7 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR}/loader)
 include_directories(${CMAKE_CURRENT_BINARY_DIR}/invoker)
 include_directories(${CMAKE_CURRENT_BINARY_DIR}/extensions)
 include_directories(${CMAKE_CURRENT_BINARY_DIR}/intercept_dll)
+include_directories(SYSTEM ${CMAKE_CURRENT_SOURCE_DIR}/common/system)
 
 
 set(GLOBAL_SOURCES ${GLOBAL_RC})

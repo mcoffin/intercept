@@ -5,9 +5,9 @@
 
 #pragma once
 
-#include "base_sink.h"
-#include "../details/null_mutex.h"
-#include "../common.h"
+#include <spdlog/sinks/base_sink.h>
+#include <spdlog/details/null_mutex.h>
+#include <spdlog/common.h>
 
 #include <mutex>
 #include <string>
@@ -44,13 +44,12 @@ public:
 
     virtual ~wincolor_sink()
     {
-        this->flush();
+        flush();
     }
 
     wincolor_sink(const wincolor_sink& other) = delete;
     wincolor_sink& operator=(const wincolor_sink& other) = delete;
 
-protected:
     virtual void _sink_it(const details::log_msg& msg) override
     {
         auto color = colors_[msg.level];
@@ -59,7 +58,7 @@ protected:
         SetConsoleTextAttribute(out_handle_, orig_attribs); //reset to orig colors
     }
 
-    virtual void _flush() override
+    virtual void flush() override
     {
         // windows console always flushed?
     }
@@ -80,11 +79,7 @@ private:
     {
         CONSOLE_SCREEN_BUFFER_INFO orig_buffer_info;
         GetConsoleScreenBufferInfo(out_handle_, &orig_buffer_info);
-        WORD back_color = orig_buffer_info.wAttributes;
-        // retrieve the current background color
-        back_color &= static_cast<WORD>(~(FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY));
-        // keep the background color unchanged
-        SetConsoleTextAttribute(out_handle_, attribs | back_color);
+        SetConsoleTextAttribute(out_handle_, attribs);
         return  orig_buffer_info.wAttributes; //return orig attribs
     }
 };

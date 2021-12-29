@@ -5,12 +5,12 @@
 
 #pragma once
 
-#if defined(_WIN32)
+#if defined(_MSC_VER)
 
-#include "base_sink.h"
-#include "../details/null_mutex.h"
+#include <spdlog/sinks/base_sink.h>
+#include <spdlog/details/null_mutex.h>
 
-#include <winbase.h>
+#include <WinBase.h>
 
 #include <mutex>
 #include <string>
@@ -30,16 +30,15 @@ public:
     {
     }
 
-
+    void flush() override
+    {
+    }
 
 protected:
     void _sink_it(const details::log_msg& msg) override
     {
         OutputDebugStringA(msg.formatted.c_str());
     }
-
-    void _flush() override
-    {}
 };
 
 typedef msvc_sink<std::mutex> msvc_sink_mt;
