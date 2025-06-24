@@ -66,8 +66,8 @@ namespace intercept {
 #else
 #pragma message "description and category accessors will be placeholders on linux"
             const r_string& get_description() const { static r_string empty = ""sv; return empty; }
-            void set_description(r_string newOP) {}
-            void set_category(r_string newOP) {}
+            template<typename T> inline void set_description(T arg) {}
+            template<typename T> inline void set_category(T arg) {}
 #endif
         };
         class gsOperator : public gsFuncBase {
@@ -162,14 +162,11 @@ namespace intercept {
             std::string_view get_map_key() const noexcept { return _name; }
         };
     }  // namespace __internal
-
-#ifndef CT_NOALLOC
-    namespace types {
-        template class rv_allocator<intercept::__internal::gsFunction>;
-        template class rv_allocator<intercept::__internal::gsOperator>;
-        template class rv_allocator<intercept::__internal::gsNular>;
-        template class rv_allocator<intercept::__internal::game_functions>;
-        template class rv_allocator<intercept::__internal::game_operators>;
-    }  // namespace types
-#endif
 }  // namespace intercept
+// namespace intercept::types {
+//         template class rv_allocator<intercept::__internal::gsFunction>;
+//         template class rv_allocator<intercept::__internal::gsOperator>;
+//         template class rv_allocator<intercept::__internal::gsNular>;
+//         template class rv_allocator<intercept::__internal::game_functions>;
+//         template class rv_allocator<intercept::__internal::game_operators>;
+// }

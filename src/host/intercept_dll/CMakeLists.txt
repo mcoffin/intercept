@@ -26,7 +26,7 @@ set_target_properties(${INTERCEPT_EXTENSION_NAME} PROPERTIES FOLDER intercept)
 
 if((CMAKE_CXX_COMPILER_ID MATCHES "Clang") OR (CMAKE_CXX_COMPILER_ID MATCHES "GNU"))
 	target_compile_options(
-		${INTERCEPT_EXTENSION_NAME} PRIVATE 
+		${INTERCEPT_EXTENSION_NAME} PRIVATE
 		"$<$<CONFIG:Release>:-O3>"
 		"$<$<CONFIG:Release>:-s>"
 		"-fPIC"
@@ -43,7 +43,7 @@ if((CMAKE_CXX_COMPILER_ID MATCHES "Clang") OR (CMAKE_CXX_COMPILER_ID MATCHES "GN
 	"$<$<CONFIG:Release>:-Wl,--gc-sections>"
 	"$<$<OR:$<CONFIG:Release>>:-Wl,--strip-all>"
 	"-Wl,-rpath,$ORIGIN"
-	) 
+	)
 	set(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
 
 	target_link_libraries(${INTERCEPT_EXTENSION_NAME} "libstdc++.a")
@@ -51,7 +51,7 @@ if((CMAKE_CXX_COMPILER_ID MATCHES "Clang") OR (CMAKE_CXX_COMPILER_ID MATCHES "GN
 	target_link_libraries (${INTERCEPT_EXTENSION_NAME} ${CMAKE_THREAD_LIBS_INIT})
 else()
 	target_compile_options(
-		${INTERCEPT_EXTENSION_NAME} PRIVATE 
+		${INTERCEPT_EXTENSION_NAME} PRIVATE
 		"/MP" "/Zi" "/EHsc"
 		"$<$<CONFIG:Release>:/MT>"
 		"$<$<CONFIG:Debug>:/MTd>"
@@ -65,7 +65,7 @@ else()
 		"$<$<CONFIG:Release>:/DNDEBUG>"
 		"$<$<CONFIG:Debug>:/D_DEBUG>"
 	)
-	target_link_options(${INTERCEPT_EXTENSION_NAME} PRIVATE "/OPT:REF" "/OPT:ICF" "/DEBUG:FULL") 
+	target_link_options(${INTERCEPT_EXTENSION_NAME} PRIVATE "/OPT:REF" "/OPT:ICF" "/DEBUG:FULL")
 endif()
 
 
