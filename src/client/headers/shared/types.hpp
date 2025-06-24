@@ -41,7 +41,7 @@ namespace intercept {
         using game_value_parameter = const game_value&;
         class game_data_array;
         class game_data_hashmap;
-        
+
         class internal_object;
         class game_data;
         class game_state;
@@ -343,7 +343,7 @@ namespace intercept {
         struct script_type_info {  //Donated from ArmaDebugEngine
             using createFunc = game_data* (*)(param_archive* ar);
 #ifdef __linux__
-            script_type_info(r_string name, createFunc cf, r_string localizedName, r_string readableName) : _name(std::move(name)), _createFunction(cf), _localizedName(std::move(localizedName)), _readableName(std::move(readableName)), _javaFunc("none") {}
+            script_type_info(r_string name, createFunc cf, r_string localizedName, r_string readableName) : _name(std::move(name)), _createFunction(cf), _localizedName(std::move(localizedName)), _readableName(std::move(readableName)) {}
 #else
             script_type_info(r_string name, createFunc cf, r_string localizedName, r_string readableName, r_string description, r_string category, r_string typeName) : _name(std::move(name)), _createFunction(cf), _localizedName(std::move(localizedName)), _readableName(std::move(readableName)), _description(std::move(description)), _category(std::move(category)), _typeName(std::move(typeName)) {}
 #endif
@@ -701,7 +701,7 @@ namespace intercept {
 
             /**
             * @brief tries to convert the game_value to an array if possible and return the element at given index.
-            * @description If value is not an array and index==0 it returns the value. 
+            * @description If value is not an array and index==0 it returns the value.
             * If the index is out of bounds it returns empty optional.
             */
             std::optional<game_value> get(size_t i_) const;
@@ -888,7 +888,7 @@ namespace intercept {
         public:
             static uintptr_t type_def;
             static uintptr_t data_type_def;
-            static rv_pool_allocator* pool_alloc_base;    
+            static rv_pool_allocator* pool_alloc_base;
 
             game_data_hashmap();
             game_data_hashmap(rv_hashmap&& init_);
@@ -901,7 +901,7 @@ namespace intercept {
 
             static void* operator new(std::size_t sz_);
             static void operator delete(void* ptr_, std::size_t sz_);
-        
+
             rv_hashmap data;
         };
 
@@ -1425,7 +1425,7 @@ namespace intercept {
             uint32_t d[3];
             bool dumm;
             bool dumm2;             //undefined variables allowed?
-            const bool scheduled;   //canSuspend 0x4D6
+            const bool scheduled = false;   //canSuspend 0x4D6
             bool local;
             bool doNil; //undefined variable will be set to nil (unscheduled). If this is false it will throw error
             //throw
@@ -1562,7 +1562,7 @@ namespace intercept {
                 if (!eval || !eval->local) return;
                 eval->local->delete_variable(name);
             }
-            
+
             /**
             * @brief Sets a script error at current position.
             * @param type This type is actually irrelevant, it just needs to be !=ok and !=handled though it's still recommended to use a sensible type

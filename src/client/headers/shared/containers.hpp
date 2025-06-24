@@ -5,6 +5,7 @@
 #include <optional>
 #include <cstring>
 #include <vector>
+#include <cstdint>
 
 #pragma push_macro("min")
 #pragma push_macro("max")
@@ -380,7 +381,7 @@ namespace intercept::types {
          * @return bool
          */
         constexpr bool is_null() const noexcept { return _ref == nullptr; }
-        
+
         /**
          * @brief free reference and set to null
          */

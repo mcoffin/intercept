@@ -1,4 +1,5 @@
 //#pragma once
+#include "loader.hpp"
 
 // Used to swap between implementations for backwards/forwards compat
 #ifndef CT_VERSION
@@ -22,7 +23,7 @@ namespace intercept {
             std::array<size_t,
 #if _WIN64 || __X86_64__
                        9 // Win64
-#elif defined(_LINUX64)
+#elif defined __linux__ && defined __x86_64__
                        9 // Linux64
 #elif defined(__linux__)
                        8 // Linux32 //#UNTESTED! //#TODO drop linux32 support
@@ -58,9 +59,16 @@ namespace intercept {
             void set_operator(unary_operator* newOP) { _operator = newOP; }
             void set_name(r_string newOP) { _name = newOP; }
             void set_name2(r_string newOP) { _name2 = newOP; }
+#ifndef __linux__
             const r_string& get_description() const { return _description; }
             void set_description(r_string newOP) { _description = newOP; }
             void set_category(r_string newOP) { _category = newOP; }
+#else
+#pragma message "description and category accessors will be placeholders on linux"
+            const r_string& get_description() const { static r_string empty = ""sv; return empty; }
+            void set_description(r_string newOP) {}
+            void set_category(r_string newOP) {}
+#endif
         };
         class gsOperator : public gsFuncBase {
         public:
@@ -83,9 +91,24 @@ namespace intercept {
             void set_operator(binary_operator* newOP) { _operator = newOP; }
             void set_name(r_string newOP) { _name = newOP; }
             void set_name2(r_string newOP) { _name2 = newOP; }
-            const r_string& get_description() const { return _description; }
-            void set_description(r_string newOP) { _description = newOP; }
-            void set_category(r_string newOP) { _category = newOP; }
+            const r_string& get_description() const {
+#ifndef __linux__
+                return _description;
+#else
+                static r_string empty = ""sv;
+                return empty;
+#endif
+            }
+            void set_description(r_string newOP) {
+#ifndef __linux__
+                _description = newOP;
+#endif
+            }
+            void set_category(r_string newOP) {
+#ifndef __linux__
+                _category = newOP;
+#endif
+            }
         };
         class gsNular : public gsFuncBase {
         public:
@@ -106,9 +129,15 @@ namespace intercept {
             void set_operator(nular_operator* newOP) { _operator = newOP; }
             void set_name(r_string newOP) { _name = newOP; }
             void set_name2(r_string newOP) { _name2 = newOP; }
+#ifndef __linux__
             const r_string& get_description() const { return _description; }
             void set_description(r_string newOP) { _description = newOP; }
             void set_category(r_string newOP) { _category = newOP; }
+#else
+            const r_string& get_description() const { static r_string empty = ""sv; return empty; }
+            void set_description(r_string newOP) {}
+            void set_category(r_string newOP) {}
+#endif
         };
 
         class game_functions : public auto_array<gsFunction>, public gsFuncBase {

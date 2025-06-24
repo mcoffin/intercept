@@ -53,7 +53,7 @@ namespace intercept {
 
     struct exception {
         exception(const uint32_t code_, const std::string & text_) : code(code_), text(text_) {}
-        
+
         exception & operator= (const exception& other) { code = other.code; text = other.text;  return *this; }
         bool operator == (const exception &r) const noexcept { return code == r.code; }
 

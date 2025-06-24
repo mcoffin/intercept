@@ -201,7 +201,7 @@ namespace intercept {
             bool is_respawning;              // 10 - true if vehicle is currently in the respawn queue awaiting respawn.
             explicit rv_vehicle_respawn_info(const game_value &gv_) : respawn_unit{gv_[5]},
                                                                       respawn_side{gv_[7]},
-                                                                      respawn_marker_name{gv_[11]},
+                                                                      respawn_marker_name(gv_[11]),
                                                                       respawn_delay{gv_[0]},
                                                                       respawn_count{gv_[1]},
                                                                       respawn_mode{gv_[6]},
@@ -492,7 +492,7 @@ namespace intercept {
 
         void enable_vehicle_sensor(const object &vehicle_, sqf_string_const_ref component_, bool enable_);
         std::vector<rv_vehicle_sensor> is_vehicle_sensor_enabled(const object &vehicle_, sqf_string_const_ref component_);
-        
+
         std::variant<sqf_return_string_list, std::vector<sqf_return_string_list>> get_compatible_pylon_magazines(std::variant<const object, sqf_string_const_ref> vehicle_, std::variant<float, sqf_string_const_ref> pylon_);
         void set_effective_commander(const object &vehicle_, const object &commander_);
         void set_plate_number(const object &vehicle_, sqf_string_const_ref str_number_);

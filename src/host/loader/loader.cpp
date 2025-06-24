@@ -135,10 +135,13 @@ namespace intercept {
     {
 #ifdef __linux__
         auto future_stringOffset = std::async([&]() {
-            auto offs = findInMemory("12MemFunction", 13);
+            const auto pattern = "12MemFunctions";
+            auto offs = memorySections.findInMemory(pattern, 13);
 #ifdef LOADER_DEBUG
-            auto prefix = "intercept::loader";
-            fprintf(stderr, "%s: stringSearch: %s\n%s: stringOffset: %p\n", prefix, "12MemFunction", prefix, offs);
+            const auto prefix = "intercept::loader";
+            std::cerr << prefix << "stringSearch: " << pattern << std::endl
+                << prefix << ": stringOffset: 0x" << std::hex << offs << std::endl;
+            // fprintf(stderr, "%s: stringSearch: %s\n%s: stringOffset: %p\n", prefix, pattern, prefix, offs);
 #endif
             return offs;
         });
@@ -154,7 +157,7 @@ namespace intercept {
             uintptr_t stringOffset = fut_stringOffset.get();
 #ifndef __linux__
             return (memorySections.findInMemory(reinterpret_cast<char*>(&stringOffset), sizeof(uintptr_t)) - sizeof(uintptr_t));
-#elif _LINUX64
+#elif __x86_64__
                 bool oldCompiler = *reinterpret_cast<uintptr_t*>(stringOffset - 8) == stringOffset;
 
                 if (oldCompiler) {
@@ -162,11 +165,11 @@ namespace intercept {
                     return vtableStart;
                 }
 
-                auto ref = findInMemory(reinterpret_cast<char*>(&stringOffset), sizeof(uintptr_t));
+                auto ref = memorySections.findInMemory(reinterpret_cast<char*>(&stringOffset), sizeof(uintptr_t));
                 if (!ref) return 0;
                 // find who points to the address after, there should only be one
                 ref += 8;
-                ref = findInMemory(reinterpret_cast<char*>(&ref), sizeof(uintptr_t));
+                ref = memorySections.findInMemory(reinterpret_cast<char*>(&ref), sizeof(uintptr_t));
                 if (!ref) return 0;
                 return ref - 0x108;
 #else
@@ -181,7 +184,7 @@ namespace intercept {
     }
 
     static std::pair<std::future<uintptr_t>, std::future<uintptr_t>> startPoolAllocatorSearch(const MemorySections& memorySections) {
-#if _WIN64 || __X86_64__
+#if _WIN64 && __X86_64__
         auto future_poolFuncAlloc = std::async([&]() {
             auto result = memorySections.findInMemoryPattern("\x40\x53\x48\x83\xEC\x20\xFF\x41\x60\x48\x8B\x41\x08\x48\x8B\xD9\x48\x3B\xC1\x74\x0B\x48\x85\xC0\x74\x06\x48\x83\xC0\xE0\x75\x2B\x48\x8D\x41\x18\x48\x8B\x49\x20\x48\x3B\xC8\x74\x0E\x48\x85\xC9\x74\x09\x48\x8D\x41\xE0\x48\x85\xC0\x75\x10\x48\x8B\xCB\xE8\x00\x00\x00\x00\x84\xC0\x0F\x84\x00\x00\x00\x00\x4C\x8B\x43\x08\x32\xC9\x45\x33\xD2\x4C\x3B\xC3\x74\x0B\x4D\x85\xC0\x74\x06\x49\x83\xC0\xE0\x75\x2A\x4C\x8B\x43\x20\x48\x8D\x43\x18\x4C\x3B\xC0", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx????xxxx????xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
             if (!result)  //vc143
@@ -202,16 +205,14 @@ namespace intercept {
 
             return result;
         });
-#else
-
-#ifdef __linux__
-        //auto future_poolFuncAlloc = std::async([&]() {return memorySections.findInMemoryPattern("", ""); });
-        //auto future_poolFuncDealloc = std::async([&]() {return memorySections.findInMemoryPattern("\x56\x53\x83\xec\x00\x8b\x44\x24\x00\x8b\x74\x24\x00\x85\xc0\x0f\x84\x00\x00\x00\x00\x8b\x18\x8b\x0b\x85\xc9\x0f\x85\x00\x00\x00\x00\x8b\x53\x00\x89\x10\x89\x43\x00\x89\x58\x00\x83\x6b\x00\x00\x0f\x94\xc0\x85\xd2\x0f\x84\x00\x00\x00\x00\x84\xc0\x74\x00\x8b\x43\x00\x8b\x53\x00\x89\x10\x8b\x53\x00\x89\x42\x00\xc7\x43\x00\x00\x00\x00\x00\x83\x6e\x00\x00\x8b\x56\x00\x8d\x43\x00\x89\x02\x89\x53\x00\x8d\x56\x00\x89\x53\x00\x83\x46\x00\x00\x89\x46", "xxxx?xxx?xxx?xxxx????xxxxxxxx????xx?xxxx?xx?xx??xxxxxxx????xxx?xx?xx?xxxx?xx?xx?????xx??xx?xx?xxxx?xx?xx?xx??xx"); });
-#else
+#elif _WIN64
         auto future_poolFuncAlloc = std::async([&]() { return memorySections.findInMemoryPattern("\x56\x8B\xF1\xFF\x46\x38\x8B\x46\x04\x3B\xC6\x74\x09\x85\xC0\x74\x05\x83\xC0\xF0\x75\x26\x8B\x4E\x10\x8D\x46\x0C\x3B\xC8\x74\x0B\x85\xC9\x74\x07\x8D\x41\xF0\x85\xC0\x75\x11", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"); });
         auto future_poolFuncDealloc = std::async([&]() { return memorySections.findInMemoryPattern("\x8B\x44\x24\x04\x85\xC0\x74\x09\x89\x44\x24\x04\xE9", "xxxxxxxxxxxxx"); });
-#endif
-
+#elif defined __linux__ && defined __x86_64__
+        auto future_poolFuncAlloc = std::async([&]() {return memorySections.findInMemoryPattern("", ""); });
+        auto future_poolFuncDealloc = std::async([&]() {return memorySections.findInMemoryPattern("\x56\x53\x83\xec\x00\x8b\x44\x24\x00\x8b\x74\x24\x00\x85\xc0\x0f\x84\x00\x00\x00\x00\x8b\x18\x8b\x0b\x85\xc9\x0f\x85\x00\x00\x00\x00\x8b\x53\x00\x89\x10\x89\x43\x00\x89\x58\x00\x83\x6b\x00\x00\x0f\x94\xc0\x85\xd2\x0f\x84\x00\x00\x00\x00\x84\xc0\x74\x00\x8b\x43\x00\x8b\x53\x00\x89\x10\x8b\x53\x00\x89\x42\x00\xc7\x43\x00\x00\x00\x00\x00\x83\x6e\x00\x00\x8b\x56\x00\x8d\x43\x00\x89\x02\x89\x53\x00\x8d\x56\x00\x89\x53\x00\x83\x46\x00\x00\x89\x46", "xxxx?xxx?xxx?xxxx????xxxxxxxx????xx?xxxx?xx?xx??xxxxxxx????xxx?xx?xx?xxxx?xx?xx?????xx??xx?xx?xxxx?xx?xx?xx??xx"); });
+#else
+#pragma error "failed to match system type
 #endif
 
         return {std::move(future_poolFuncAlloc), std::move(future_poolFuncDealloc)};
@@ -272,7 +273,7 @@ namespace intercept {
         //#TODO these patternfinds can be replaced by taking the alloc function out of any Types createFunction. and the dealloc function is right next to it asm wise
 
         auto [future_poolFuncAlloc, future_poolFuncDealloc] = startPoolAllocatorSearch(memorySections);
-    
+
 
     #if _WIN32 && !_WIN64
         //via profile context "scrpt"
@@ -447,7 +448,7 @@ namespace intercept {
                 typedef game_value*(__thiscall *evaluate_func) (game_state* gs, game_value& ret, const r_string& code, void* instruction_list, void* context, void* ns, const r_string& name);
 
                 const evaluate_func func = reinterpret_cast<evaluate_func>(loader::get().evaluate_script_function);
-                
+
 
                 struct contextType {
                     bool _local;

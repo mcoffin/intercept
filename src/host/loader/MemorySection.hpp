@@ -1,7 +1,14 @@
+#include <cstdint>
+#include <cstring>
+#include <optional>
+#include <vector>
+#include <regex>
+#include <fstream>
+
 #pragma once
+using std::size_t;
 
-
-    class MemorySection {
+class MemorySection {
 public:
 #if _WIN32 || _WIN64
     explicit MemorySection(const MODULEINFO& modInfo) noexcept : start(reinterpret_cast<uintptr_t>(modInfo.lpBaseOfDll)),

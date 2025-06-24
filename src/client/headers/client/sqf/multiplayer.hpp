@@ -31,11 +31,11 @@ namespace intercept {
             float avg_bandwidth;            // 9 - 1
             float desync;                   // 9 - 2
             bool is_headless;               // 7 - whether or not this is a headless client (see hasInterface, isServer)
-            explicit rv_user_info(const game_value &gv_) : player_id{gv_[0]},
-                                                           player_uid{gv_[2]},
-                                                           soldier_name{gv_[3]},
-                                                           display_name{gv_[4]},
-                                                           steam_profile_name{gv_[5]},
+            explicit rv_user_info(const game_value &gv_) : player_id(gv_[0]),
+                                                           player_uid(gv_[2]),
+                                                           soldier_name(gv_[3]),
+                                                           display_name(gv_[4]),
+                                                           steam_profile_name(gv_[5]),
                                                            player_object{gv_[10]},
                                                            owner{gv_[1]},
                                                            client_state{gv_[6]},

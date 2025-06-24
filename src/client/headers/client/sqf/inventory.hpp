@@ -116,7 +116,7 @@ namespace intercept {
 
             explicit operator game_value() const {
                 // game_value cast is only needed for addWeaponWithAttachmentsCargo, and it only needs 'name' and 'ammo'
-                return game_value({name, ammo}); 
+                return game_value({name, ammo});
             }
         };
 
@@ -147,8 +147,8 @@ namespace intercept {
             sqf_string muzzle_name;
             float world_id;
             float creator_id;
-            explicit rv_throwable(const game_value &gv_) : magazine_name{gv_[0]},
-                                                           muzzle_name{gv_[1]},
+            explicit rv_throwable(const game_value &gv_) : magazine_name(gv_[0]),
+                                                           muzzle_name(gv_[1]),
                                                            world_id{gv_[2][0]},
                                                            creator_id{gv_[2][1]} {}
         };
@@ -504,7 +504,7 @@ namespace intercept {
                                        auto_array<game_value>(items.begin(), items.end())});
                 } else {
                     return game_value({});
-                
+
                 }
             }
 
@@ -531,7 +531,7 @@ namespace intercept {
             std::string facewear;
             rv_weapon_info binocular;
             std::vector<std::string> assigned_items;
-            
+
             rv_unit_loadout() = default;
 
             rv_unit_loadout(const game_value &ret_game_value_) {

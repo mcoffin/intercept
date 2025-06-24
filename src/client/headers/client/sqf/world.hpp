@@ -456,9 +456,9 @@ namespace intercept {
                 sqf_string r2t_effect_name;  // see cameraEffect for possible values;
                 sqf_string pp_effect_type;   // one of Normal, NightVision, Thermal, Colors, Mirror, ChromAber or FilmGrain;
                 float ti_index;               // see setCamUseTI for possible values;
-                explicit r2t(const game_value &gv_) : r2t_name{gv_[0]},
-                                                      r2t_effect_name{gv_[1]},
-                                                      pp_effect_type{gv_[2]},
+                explicit r2t(const game_value &gv_) : r2t_name(gv_[0]),
+                                                      r2t_effect_name(gv_[1]),
+                                                      pp_effect_type(gv_[2]),
                     ti_index{gv_[3]} {}
             };
             object camera;              // the camera itself (see camCreate);
